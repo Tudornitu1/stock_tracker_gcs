@@ -1,0 +1,165 @@
+.git
+.env
+.DS_Store
+airflow_settings.yaml
+# Git
+.git
+
+# Environment
+.env
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Airflow local settings
+airflow_settings.yaml
+webserver_config.py
+airflow-webserver.pid
+airflow.cfg
+airflow.db
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+*.egg
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nose2-junit.xml
+coverage.xml
+*.cover
+hypothesis/
+.pytest_cache/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Scrapy stuff:
+.scrapy
+
+# Sphinx documentation
+webserver_config.py
+
+# PyBuilder
+airflow.cfg
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+.python-version
+
+# pipenv
+Pipfile.lock
+
+# poetry
+poetry.lock
+
+# PEP 582; used by e.g. pythonlocal
+__pypackages__/
+
+# Celery beat schedule file
+celerybeat-schedule
+celerybeat.pid
+
+# dotenv/local envs
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# virtualenv
+venv/
+ENV/
+env/
+.venv/
+
+# IDEs
+.vscode/
+.idea/
+
+# Spyder project settings
+*.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Thumbnails
+._*
+
+# Icon must end with two newlines
+Icon
+
+# Docker
+docker-compose.*.yml
+docker-compose.local.yml
+*.log
+
+# Secrets
+secrets/
+secrets/*
+!secrets/.gitkeep
+
+# Explicit credentials
+secrets/gcp-credentials.json
+
+airflow.db
