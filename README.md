@@ -1,65 +1,145 @@
-# Overview
+End-to-End Stock Market Data Platform
 
-Welcome to Astronomer! This project was generated after you ran 'astro dev init' using the Astronomer CLI. This readme describes the contents of the project, as well as how to run Apache Airflow on your local machine.
+This project is a complete, end-to-end data platform that automates the ingestion, storage, processing, and visualization of daily stock market data. It demonstrates a full data lifecycle, from a third-party API to an interactive user-facing web application.
 
-# Project Contents
+The core of the project is an ELT (Extract, Load, Transform) pipeline orchestrated by Apache Airflow. This pipeline runs daily, ensuring the data is always fresh and reliable.
 
-Your Astro project contains the following files and folders:
+The interactive dashboard allows users to visualize historical data and manage database records directly.
 
-- dags: This folder contains the Python files for your Airflow DAGs. By default, this directory includes one example DAG:
-  - `example_astronauts`: This DAG shows a simple ETL pipeline example that queries the list of astronauts currently in space from the Open Notify API and prints a statement for each astronaut. The DAG uses the TaskFlow API to define tasks in Python, and dynamic task mapping to dynamically print a statement for each astronaut. For more on how this DAG works, see our [Getting started tutorial](https://www.astronomer.io/docs/learn/get-started-with-airflow).
-- Dockerfile: This file contains a versioned Astro Runtime Docker image that provides a differentiated Airflow experience. If you want to execute other commands or overrides at runtime, specify them here.
-- include: This folder contains any additional files that you want to include as part of your project. It is empty by default.
-- packages.txt: Install OS-level packages needed for your project by adding them to this file. It is empty by default.
-- requirements.txt: Install Python packages needed for your project by adding them to this file. It is empty by default.
-- plugins: Add custom or community plugins for your project to this file. It is empty by default.
-- airflow_settings.yaml: Use this local-only file to specify Airflow Connections, Variables, and Pools instead of entering them in the Airflow UI as you develop DAGs in this project.
+Architecture
 
-# Deploy Your Project Locally
+The platform is built on a modern data stack, separating raw data storage (Data Lake) from the application's operational database (Document DB).
 
-Start Airflow on your local machine by running 'astro dev start'.
+Data Flow Diagram:
 
-This command will spin up five Docker containers on your machine, each for a different Airflow component:
+[Polygon.io API] -> [Python Script (in Airflow)] -> [GCS Data Lake (Raw JSON)]
+|
+L-> [MongoDB Atlas (Clean BSON)] -> [Streamlit UI]
 
-- Postgres: Airflow's Metadata Database
-- Scheduler: The Airflow component responsible for monitoring and triggering tasks
-- DAG Processor: The Airflow component responsible for parsing DAGs
-- API Server: The Airflow component responsible for serving the Airflow UI and API
-- Triggerer: The Airflow component responsible for triggering deferred tasks
+Core Components:
 
-When all five containers are ready the command will open the browser to the Airflow UI at http://localhost:8080/. You should also be able to access your Postgres Database at 'localhost:5432/postgres' with username 'postgres' and password 'postgres'.
+Orchestration (Apache Airflow): Schedules and executes the Python ingestion script daily. Manages task dependencies and ensures reliability. Run locally via Docker and the Astro CLI.
 
-Note: If you already have either of the above ports allocated, you can either [stop your existing Docker containers or change the port](https://www.astronomer.io/docs/astro/cli/troubleshoot-locally#ports-are-not-available-for-my-local-airflow-webserver).
+Data Lake (Google Cloud Storage): Stores the raw, unmodified JSON responses from the API, partitioned by date and ticker. This provides a historical backup and allows for future re-processing.
 
-# Deploy Your Project to Astronomer
+Application Database (MongoDB Atlas): Stores clean, structured data in BSON format. A unique composite index (symbol, date) guarantees data integrity and prevents duplicates. The database is populated using an idempotent upsert strategy.
 
-If you have an Astronomer account, pushing code to a Deployment on Astronomer is simple. For deploying instructions, refer to Astronomer documentation: https://www.astronomer.io/docs/astro/deploy-code/
+Web Application (Streamlit): A user-facing dashboard that reads data directly from MongoDB to provide visualizations and a full CRUD (Create, Read, Update, Delete) interface for managing records.
 
-# CI & Testing
+Tech Stack
 
-This repository includes a GitHub Actions workflow that runs the test suite on push and pull requests to `main`.
+Orchestrator: Apache Airflow (managed with Astro CLI)
 
-![CI](https://github.com/Tudornitu1/Stock_Tracker_GCS/actions/workflows/python-package.yml/badge.svg)
+Language: Python
 
-Quick test/run instructions:
+Data Storage:
 
-- Create and activate a virtual environment (recommended):
+Data Lake: Google Cloud Storage (GCS)
 
-  python -m venv .venv
-  source .venv/bin/activate
+Application DB: MongoDB Atlas (Cloud)
 
-- Install dependencies:
+API Source: Polygon.io
 
-  pip install -r requirements.txt
+Frontend/UI: Streamlit
 
-- Run tests:
+Containerization: Docker
 
-  pytest -q
+Key Features
 
-Security note:
+Automated Daily Ingestion: The Airflow DAG runs automatically every day, fetching the latest stock data without manual intervention.
 
-Do not commit sensitive files. The `secrets/` directory is ignored by default. Keep credentials like `secrets/gcp-credentials.json` out of version control and use environment variables or a secrets manager instead.
+Data Source Migration: The pipeline was successfully migrated from two previous rate-limited sources (Alpha Vantage, FMP) to a more robust API (Polygon.io), demonstrating adaptability to changing data landscapes.
 
-# Contact
+Idempotent & De-duplicated: The pipeline uses an upsert operation combined with a unique database index to ensure that running the pipeline multiple times does not create duplicate records.
 
-The Astronomer CLI is maintained with love by the Astronomer team. To report a bug or suggest a change, reach out to our support.
+Hybrid Storage Model: Implements a best-practice architecture by separating the raw data lake (GCS) from the structured application database (MongoDB).
+
+Full CRUD Application: The Streamlit UI isn't just for reading data; it provides a complete interface for creating, updating, and deleting individual records, demonstrating a full grasp of database interactions.
+
+Cloud-Native: Leverages managed cloud services (GCS, MongoDB Atlas) for scalability and reliability.
+
+Setup and Local Execution
+
+To run this project on your local machine, follow these steps.
+
+Prerequisites
+
+Python 3.10+
+
+Docker Desktop
+
+Astro CLI (brew install astro)
+
+A Google Cloud account with a Service Account key (.json file).
+
+A MongoDB Atlas account with a database user and connection string.
+
+An API key from Polygon.io.
+
+Installation & Configuration
+
+Clone the repository:
+
+git clone <your-repo-url>
+cd stock_tracker
+
+Set up Environment Variables:
+
+Place your GCP Service Account key in the secrets/ folder and name it gcp-credentials.json.
+
+Create a .env file in the root directory and populate it with your API key:
+
+# No longer used, but kept for history
+
+# ALPHA_VANTAGE_API_KEY=...
+
+# FMP_API_KEY=...
+
+# Not used in hardcoded setup, but good practice
+
+# POLYGON_API_KEY=your_polygon_key_here
+
+MONGO_DB_CONNECTION_STRING=your_mongodb_atlas_connection_string
+
+Configure the Hardcoded API Key:
+
+Open docker-compose.local.yml.
+
+In the environment section for all three services (scheduler, webserver, triggerer), set your Polygon API key:
+
+environment:
+
+- POLYGON_API_KEY=your_polygon_key_here
+
+# ... other variables
+
+Install Python dependencies for the Streamlit app:
+
+# Create and activate a virtual environment
+
+python3 -m venv venv
+source venv/bin/activate
+
+# Install packages
+
+pip install streamlit pandas pymongo python-dotenv certifi
+
+Running the Project
+
+Start the Airflow Pipeline Environment:
+
+# This will start all necessary Docker containers
+
+astro dev start
+
+Access the Airflow UI at http://localhost:8080 (admin/admin).
+
+Un-pause and trigger the stock_market_data_pipeline DAG to populate your database.
+
+Launch the Streamlit Dashboard:
+
+Make sure your virtual environment is active.
+
+Run the following command:
+
+streamlit run dashboard.py
